@@ -1,0 +1,43 @@
+---
+title: "percentage of teenagers pregnancy"
+author: "Kevin Isaac Kareithi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(janitor)
+library(sf) # Deal with maps
+library(ggplot2)
+```
+# Reading the data and cleaning
+```{r Reading_data}
+counties <- st_read("County.shp") 
+teen_pregnancy_data = read.csv("table6_teenpregnancybycounty.csv")
+
+data_counties <- unique(teen_pregnancy_data$County)
+counties_counties <- unique(counties$Name)
+
+data_counties[which(!data_counties %in% counties_counties)]
+
+teen_pregnancy_data <- teen_pregnancy_data %>%
+  mutate(County = recode(County, "Taita/Taveta" = "Taita Taveta", "Tharaka-Nithi" = "Tharaka Nithi", "Murang’a" = "Muranga", "Elgeyo/Marakwet" = "Elgeyo Marakwet", "Nairobi City" = "Nairobi" ))
+
+```
+# Merging the data
+```{r merging}
+counties <- merge(counties, teen_pregnancy_data, by.x = "Name", by.y = "County")
+```
+# Create the map using ggplot2
+```{r plotting}
+ggplot() +
+  geom_sf(data = counties, aes(fill = Ever_pregnant)) +
+  scale_fill_gradient(low = "green", high = "red", name = "Percentage Ever Pregnant (%)") +
+  labs(title = "Percentage of Teenagers Ever Pregnant by County in Kenya") +
+  theme_void()
+
+```
+

@@ -1,0 +1,6 @@
+"0","p <- ggplot(data_sf) +"
+"0","  geom_sf(aes(fill = Acute.Malnutrition)) +"
+"0","  labs(title = ""Choropleth Map of Acute Malnutrition"","
+"0","       fill = ""Acute Malnutrition"") +"
+"0","  theme_void()"
+"0","ggplotly(p)"

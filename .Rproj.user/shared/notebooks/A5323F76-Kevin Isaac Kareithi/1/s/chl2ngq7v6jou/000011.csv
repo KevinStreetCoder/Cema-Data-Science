@@ -1,0 +1,5 @@
+"0","p <- ggplot(data_tidy, aes(x = period, y = value, color = variable)) + "
+"0","  geom_boxplot() +"
+"0","  theme_minimal()+"
+"0","  coord_flip()"
+"0","ggplotly(p)"

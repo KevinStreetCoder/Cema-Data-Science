@@ -1,0 +1,119 @@
+---
+title: "Kevin Isaac Kareithi"
+author: "Kevin Isaac Kareithi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Load necessary libraries
+```{r code}
+library(tidyverse) 
+library(sf)
+library(ggplot2)
+library(ggmap)
+library(plotly)
+```
+# Load the dataset
+```{R data}
+url <- "https://raw.githubusercontent.com/cema-uonbi/internship_task/main/data/cema_internship_task_2023.csv"
+data <- read.csv(url)
+head(data)
+```
+# Explore the structure and summary statistics of the dataset
+```{R summary}
+# Inspect data 
+glimpse(data)
+summary(data)
+```
+# Handling missing value
+```{R missing}
+# Fill in missing values for the columns with their mean
+data <- data %>%
+  mutate(
+    Total.Dewormed = ifelse(is.na(Total.Dewormed), mean(Total.Dewormed, na.rm = TRUE), Total.Dewormed),
+    Acute.Malnutrition = ifelse(is.na(Acute.Malnutrition), mean(Acute.Malnutrition, na.rm = TRUE), Acute.Malnutrition),
+    stunted.6.23.months = ifelse(is.na(stunted.6.23.months), mean(stunted.6.23.months, na.rm = TRUE), stunted.6.23.months),
+    stunted.0..6.months = ifelse(is.na(stunted.0..6.months), mean(stunted.0..6.months, na.rm = TRUE), stunted.0..6.months),
+    stunted.24.59.months = ifelse(is.na(stunted.24.59.months), mean(stunted.24.59.months, na.rm = TRUE), stunted.24.59.months),
+    diarrhoea.cases = ifelse(is.na(diarrhoea.cases), mean(diarrhoea.cases, na.rm = TRUE), diarrhoea.cases),
+    Underweight.0..6.months = ifelse(is.na(Underweight.0..6.months), mean(Underweight.0..6.months, na.rm = TRUE), Underweight.0..6.months),
+    Underweight.6.23.months = ifelse(is.na(Underweight.6.23.months), mean(Underweight.6.23.months, na.rm = TRUE), Underweight.6.23.months),
+    Underweight.24.59.Months = ifelse(is.na(Underweight.24.59.Months), mean(Underweight.24.59.Months, na.rm = TRUE), Underweight.24.59.Months)
+  )
+
+# Inspect the filled data
+glimpse(data)
+```
+# Transform to tidy format
+```{R Tidy}
+data_tidy <- data %>% 
+  pivot_longer(c(Total.Dewormed,Acute.Malnutrition,stunted.6.23.months,stunted.0..6.months,stunted.24.59.months,diarrhoea.cases,Underweight.0..6.months,Underweight.6.23.months,Underweight.24.59.Months), 
+               names_to = "variable", 
+               values_to = "value")
+```
+# Visualize with histograms
+# Create interactive histograms using plotly
+```{R plot}
+p <- ggplot(data_tidy, aes(x = value)) +
+  geom_histogram() +
+  facet_wrap(~variable, scales = "free") +
+  theme_minimal()
+ggplotly(p)
+```
+
+# Visualize with boxplots
+# Create interactive boxplots using plotly
+```{R boxplotl}
+p <- ggplot(data_tidy, aes(x = period, y = value, color = variable)) + 
+  geom_boxplot() +
+  theme_minimal()+
+  coord_flip()
+ggplotly(p)
+```
+
+# Join with spatial data
+```{R}
+kenya_sf <- st_read("County.shp")
+data$county <- gsub(" County$", "", data$county)
+data_sf <- left_join(kenya_sf, data, by = c("Name" = "county"))
+```
+# Map acute malnutrition
+# Create an interactive choropleth map using plotly
+
+# State research question
+# "What factors are associated with high rates of acute malnutrition across counties?" 
+
+# Statistical analysis e.g. correlation, regression
+# Calculate correlation between Acute Malnutrition and Dewormed
+```{R correlation}
+correlation <- cor(data_sf$`Acute.Malnutrition`, data_sf$Total.Dewormed)
+print("Correlation coefficient between Acute Malnutrition and Dewormed:")
+print(correlation)
+```
+# Fit a linear regression model to explore the relationship between Acute Malnutrition and Dewormed
+```{R }
+linear_model <- lm(Acute.Malnutrition ~ Total.Dewormed, data = data_sf)
+summary(linear_model)
+```
+# Graphs showing the relationship between Acute Malnutrition and Dewormed
+# Create interactive scatter plot with a regression line using plotly
+```{R Graphs}
+p <- ggplot(data_sf, aes(x = Total.Dewormed, y = Acute.Malnutrition)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Dewormed", y = "Acute Malnutrition") +
+  theme_minimal()
+ggplotly(p)
+```
+
+# Create interactive box plot using plotly
+```{R box plot}
+p <- ggplot(data_sf, aes(x = Total.Dewormed, y = Acute.Malnutrition)) +
+  geom_boxplot() +
+  labs(x = "Dewormed", y = "Acute Malnutrition") +
+  theme_minimal()
+ggplotly(p)
+```

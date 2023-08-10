@@ -1,0 +1,88 @@
+---
+title: "Day_Three_Training"
+author: "Kevin Isaac Kareithi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# load packages
+library(tidyverse)
+library(janitor)
+library(sf) # Deal with maps
+library(ggplot2)
+library(readxl)
+```
+
+```{r call data, include=FALSE}
+# Reading the dataset
+county_data <- st_read("County.shp") 
+density_data <- read_excel("Density.xlsx") %>%
+  clean_names()
+
+densitycounties <- unique(density_data$county)
+shapecounties <- unique(county_data$Name)
+densitycounties[which(!densitycounties %in% shapecounties)]
+
+density_data <- density_data %>%
+  mutate(county = recode(county, "Keiyo-Marakwet" = "Elgeyo Marakwet", "Murang'A" = "Muranga"))
+```
+
+```{r plot the shapefile data}
+ggplot(county_data)+
+  geom_sf(aes(geometry= geometry))
+
+```
+```{r merge_dataset}
+merged_density_data <- county_data %>%
+  left_join(density_data, by = c("Name" = "county"))
+```
+```{r plot density map}
+```
+
+
+```{r plot density map}
+ggplot(merged_density_data)+
+  geom_sf(aes(geometry = geometry, fill = density_of_physician_hwf_per_10_000_population))+
+  labs(title = "Choropleth Map of physician Density",
+       x= "", y ="", fill="Physician Density") +
+  theme_void() + 
+  scale_fill_gradient(low= "#f7fcf5", high="#00441b")
+```
+
+
+```{r plot density map}
+ggplot(merged_density_data)+
+  geom_sf(aes(geometry = geometry, fill = density_of_family_physician_hwf_per_10_000_population))+
+  labs(title = "Choropleth Map of physician Density",
+       x= "", y ="", fill="Physician Density") +
+  theme_void() + 
+  scale_fill_gradient(low= "#f7fcf5", high="#00441b")
+```
+```{r}
+ggplot(merged_density_data)+
+  geom_sf(aes(geometry = geometry, fill =density_of_anaesthesiologist_hwf_per_10_000_population))+
+  labs(title = "Choropleth Map of physician Density",
+       x= "", y ="", fill="Physician Density") +
+  theme_void() + 
+  scale_fill_gradient(low= "#f7fcf5", high="#00441b")
+
+```
+```{r}
+library(ggplot2)
+library(plotly)
+p <- ggplot(merged_density_data)+
+  geom_sf(aes(geometry = geometry, fill = density_of_general_surgeon_hwf_per_10_000_population))+
+  labs(title = "Choropleth Map of physician Density",
+       x= "", y ="", fill="Physician Density") +
+  theme_void() + 
+  scale_fill_gradient(low= "#f7fcf5", high="#00441b")
+merged_density_data$tooltip <- paste("County: ", merged_density_data$Name,
+                                     "<br>Density: ", merged_density_data$density_of_physician_hwf_per_10_000_population)
+interactive_map <- ggplotly(p, tooltip = "tooltip")
+interactive_map
+```
+
+

@@ -1,0 +1,7 @@
+"0","p <- ggplot(data_sf, aes(x = Total.Dewormed, y = Acute.Malnutrition)) +"
+"0","  geom_boxplot() +"
+"0","  labs(x = ""Dewormed"", y = ""Acute Malnutrition"") +"
+"0","  theme_minimal()"
+"0","ggplotly(p)"
+"2","Warning: [38;5;232mContinuous [32mx[38;5;232m aesthetic
+[36mℹ[38;5;232m did you forget `aes(group = ...)`?[39m"

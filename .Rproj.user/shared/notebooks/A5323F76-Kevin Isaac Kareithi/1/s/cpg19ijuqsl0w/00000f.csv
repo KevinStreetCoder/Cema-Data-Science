@@ -1,0 +1,38 @@
+"0","# Fill in missing values for the columns with their mean"
+"0","data <- data %>%"
+"0","  mutate("
+"0","    Total.Dewormed = ifelse(is.na(Total.Dewormed), mean(Total.Dewormed, na.rm = TRUE), Total.Dewormed),"
+"0","    Acute.Malnutrition = ifelse(is.na(Acute.Malnutrition), mean(Acute.Malnutrition, na.rm = TRUE), Acute.Malnutrition),"
+"0","    stunted.6.23.months = ifelse(is.na(stunted.6.23.months), mean(stunted.6.23.months, na.rm = TRUE), stunted.6.23.months),"
+"0","    stunted.0..6.months = ifelse(is.na(stunted.0..6.months), mean(stunted.0..6.months, na.rm = TRUE), stunted.0..6.months),"
+"0","    stunted.24.59.months = ifelse(is.na(stunted.24.59.months), mean(stunted.24.59.months, na.rm = TRUE), stunted.24.59.months),"
+"0","    diarrhoea.cases = ifelse(is.na(diarrhoea.cases), mean(diarrhoea.cases, na.rm = TRUE), diarrhoea.cases),"
+"0","    Underweight.0..6.months = ifelse(is.na(Underweight.0..6.months), mean(Underweight.0..6.months, na.rm = TRUE), Underweight.0..6.months),"
+"0","    Underweight.6.23.months = ifelse(is.na(Underweight.6.23.months), mean(Underweight.6.23.months, na.rm = TRUE), Underweight.6.23.months),"
+"0","    Underweight.24.59.Months = ifelse(is.na(Underweight.24.59.Months), mean(Underweight.24.59.Months, na.rm = TRUE), Underweight.24.59.Months)"
+"0","  )"
+"0",""
+"0","# Inspect the filled data"
+"0","glimpse(data)"
+"1","Rows: 1,410"
+"1",""
+"1","
+"
+"1","Columns: 11"
+"1",""
+"1","
+"
+"1","$ period                   [3m[38;5;246m<chr>[39m[23m ""Jan-23"", ""Jan-23"", ""Jan-2…
+$ county                   [3m[38;5;246m<chr>[39m[23m ""Baringo County"", ""Bomet C…
+$ Total.Dewormed           [3m[38;5;246m<int>[39m[23m 3659, 1580, 6590, 7564, 14…
+$ Acute.Malnutrition       [3m[38;5;246m<dbl>[39m[23m 8.0, 125.4, 24.0, 125.4, 1…
+$ stunted.6.23.months      [3m[38;5;246m<dbl>[39m[23m 471, 1, 98, 396, 92, 326, …
+$ stunted.0..6.months      [3m[38;5;246m<dbl>[39m[23m 34, 3, 154, 143, 71, 86, 1…
+$ stunted.24.59.months     [3m[38;5;246m<dbl>[39m[23m 380.000, 110.765, 23.000, …
+$ diarrhoea.cases          [3m[38;5;246m<int>[39m[23m 2620, 1984, 4576, 2239, 27…
+$ Underweight.0..6.months  [3m[38;5;246m<int>[39m[23m 85, 41, 231, 251, 57, 141,…
+$ Underweight.6.23.months  [3m[38;5;246m<dbl>[39m[23m 739, 86, 315, 608, 104, 54…
+$ Underweight.24.59.Months [3m[38;5;246m<dbl>[39m[23m 731, 16, 120, 125, 21, 160…"
+"1",""
+"1","
+"

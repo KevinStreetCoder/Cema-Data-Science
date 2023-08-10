@@ -1,0 +1,6 @@
+"0",""
+"0","# Plot the decomposed components for Acute Malnutrition"
+"0","p_decomposed_malnutrition <- autoplot(data_time_series_decomposed_malnutrition)"
+"0","p_decomposed_malnutrition <- p_decomposed_malnutrition + labs(title = ""STL Decomposition of Acute Malnutrition Time Series"","
+"0","                                                              y = ""Value"")"
+"0","print(p_decomposed_malnutrition)"

@@ -1,0 +1,4 @@
+"0","data_tidy <- data %>% "
+"0","  pivot_longer(cols = starts_with(c(""Total"", ""Acute"", ""stunted"", ""diarrhoea"", ""Underweight"")),"
+"0","               names_to = ""variable"","
+"0","               values_to = ""value"")"

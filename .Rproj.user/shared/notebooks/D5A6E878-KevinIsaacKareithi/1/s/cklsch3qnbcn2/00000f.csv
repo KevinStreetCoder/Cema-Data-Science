@@ -1,0 +1,5 @@
+"0","research_question <- ""Is there a relationship between the number of children with acute malnutrition and the total number of children dewormed in different counties over time? Understanding this relationship can help in designing targeted interventions to address acute malnutrition in children."""
+"0","cat(""Research Question:"", research_question)"
+"1","Research Question:"
+"1"," "
+"1","Is there a relationship between the number of children with acute malnutrition and the total number of children dewormed in different counties over time? Understanding this relationship can help in designing targeted interventions to address acute malnutrition in children."

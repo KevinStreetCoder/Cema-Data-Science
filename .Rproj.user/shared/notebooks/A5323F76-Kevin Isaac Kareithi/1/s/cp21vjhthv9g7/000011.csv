@@ -1,0 +1,7 @@
+"0","p <- ggplot(data_sf, aes(x = Total.Dewormed, y = Acute.Malnutrition)) +"
+"0","  geom_point() +"
+"0","  geom_smooth(method = ""lm"", se = FALSE) +"
+"0","  labs(x = ""Dewormed"", y = ""Acute Malnutrition"") +"
+"0","  theme_minimal()"
+"0","ggplotly(p)"
+"2","[38;5;232m`geom_smooth()` using formula = 'y ~ x'[39m"

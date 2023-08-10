@@ -1,0 +1,7 @@
+"0","p <- ggplot(data_tidy, aes(x = value)) +"
+"0","  geom_histogram() +"
+"0","  facet_wrap(~variable, scales = ""free"") +"
+"0","  theme_minimal()"
+"0","ggplotly(p)"
+"2","[38;5;232m`stat_bin()` using `bins = 30`. Pick better value with
+`binwidth`.[39m"

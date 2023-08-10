@@ -1,0 +1,90 @@
+---
+title: "Kevin Isaac Kareithi"
+author: "Kevin Isaac Kareithi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r code}
+# Load necessary libraries
+library(tidyverse) 
+library(sf)
+library(ggplot2)
+library(ggmap)
+library(plotly)
+```
+# Load the dataset
+```{R data}
+url <- "https://raw.githubusercontent.com/cema-uonbi/internship_task/main/data/cema_internship_task_2023.csv"
+data <- read.csv(url)
+head(data)
+```
+# Explore the structure and summary statistics of the dataset
+```{R summary}
+# Inspect data 
+glimpse(data)
+summary(data)
+```
+# Handling missing value
+```{R missing}
+# Fill in missing values for the columns with their mean
+data <- data %>%
+  mutate(
+    Total.Dewormed = ifelse(is.na(Total.Dewormed), mean(Total.Dewormed, na.rm = TRUE), Total.Dewormed),
+    Acute.Malnutrition = ifelse(is.na(Acute.Malnutrition), mean(Acute.Malnutrition, na.rm = TRUE), Acute.Malnutrition),
+    stunted.6.23.months = ifelse(is.na(stunted.6.23.months), mean(stunted.6.23.months, na.rm = TRUE), stunted.6.23.months),
+    stunted.0..6.months = ifelse(is.na(stunted.0..6.months), mean(stunted.0..6.months, na.rm = TRUE), stunted.0..6.months),
+    stunted.24.59.months = ifelse(is.na(stunted.24.59.months), mean(stunted.24.59.months, na.rm = TRUE), stunted.24.59.months),
+    diarrhoea.cases = ifelse(is.na(diarrhoea.cases), mean(diarrhoea.cases, na.rm = TRUE), diarrhoea.cases),
+    Underweight.0..6.months = ifelse(is.na(Underweight.0..6.months), mean(Underweight.0..6.months, na.rm = TRUE), Underweight.0..6.months),
+    Underweight.6.23.months = ifelse(is.na(Underweight.6.23.months), mean(Underweight.6.23.months, na.rm = TRUE), Underweight.6.23.months),
+    Underweight.24.59.Months = ifelse(is.na(Underweight.24.59.Months), mean(Underweight.24.59.Months, na.rm = TRUE), Underweight.24.59.Months)
+  )
+
+# Inspect the filled data
+glimpse(data)
+```
+# Transform to tidy format
+```{R Tidy}
+data <- data %>% 
+  pivot_longer(c(Total.Dewormed,Acute.Malnutrition,stunted.6.23.months,stunted.0..6.months,stunted.24.59.months,diarrhoea.cases,Underweight.0..6.months,Underweight.6.23.months,Underweight.24.59.Months), 
+               names_to = "variable", 
+               values_to = "value")
+```
+# Visualize with histograms
+# Create interactive histograms using plotly
+```{R plot}
+p <- ggplot(data, aes(x = value)) +
+  geom_histogram() +
+  facet_wrap(~variable, scales = "free") +
+  theme_minimal()
+ggplotly(p)
+```
+
+# Visualize with boxplots
+# Create interactive boxplots using plotly
+```{R boxplotl}
+p <- ggplot(data, aes(x = period, y = value, color = variable)) + 
+  geom_boxplot() +
+  theme_minimal()+
+  coord_flip()
+ggplotly(p)
+```
+
+# Join with spatial data
+```{R}
+kenya_sf <- st_read("County.shp")
+data$county <- gsub(" County$", "", data$county)
+data_sf <- left_join(kenya_sf, data, by = c("Name" = "county"))
+```
+# Map acute malnutrition
+# Create an interactive choropleth map using plotly
+```{R map}
+p <- ggplot(data_sf) +
+  geom_sf(aes(fill = value)) +
+  theme_void()
+ggplotly(p)
+```

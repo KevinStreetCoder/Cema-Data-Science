@@ -1,0 +1,7 @@
+"0","ggplot(summary_stats, aes(x = Avg_Dewormed, y = Avg_Malnutrition)) +"
+"0","  geom_point() +"
+"0","  geom_smooth(method = ""lm"") +"
+"0","  labs(title = ""Relationship between Dewormed Children and Acute Malnutrition"","
+"0","       x = ""Average Children Dewormed"","
+"0","       y = ""Average Acute Malnutrition"") +"
+"0","  theme_minimal()"

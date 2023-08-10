@@ -1,0 +1,4 @@
+"0","data_time_series <- data %>%"
+"0","  group_by(date) %>%"
+"0","  summarise(Avg_Dewormed = mean(Total.Dewormed),"
+"0","            Avg_Malnutrition = mean(Acute.Malnutrition))"

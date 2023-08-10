@@ -1,0 +1,218 @@
+---
+title: "CEMA Internship Task Analysis"
+author: "Kevin Isaac Kareithi"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Load necessary libraries
+```{r code}
+library(tidyverse) 
+library(sf)
+library(ggplot2)
+library(ggmap)
+library(plotly)
+library(zoo)  
+library(forecast)
+library(xts)
+```
+# Load the dataset
+```{R data}
+url <- "https://raw.githubusercontent.com/cema-uonbi/internship_task/main/data/cema_internship_task_2023.csv"
+data <- read.csv(url)
+head(data)
+```
+# Explore the structure and summary statistics of the dataset
+```{R summary}
+# Inspect data 
+glimpse(data)
+summary(data)
+```
+# Handling missing value using tidyr::replace_na
+```{R missing}
+data <- data %>%
+  mutate_at(vars(Total.Dewormed, Acute.Malnutrition, stunted.6.23.months:Underweight.24.59.Months),
+            ~replace_na(as.numeric(.), mean(as.numeric(.), na.rm = TRUE)))
+
+# Inspect the filled data
+glimpse(data)
+```
+# Transform to tidy format
+```{R Tidy}
+data_tidy <- data %>% 
+  pivot_longer(cols = starts_with(c("Total", "Acute", "stunted", "diarrhoea", "Underweight")),
+               names_to = "variable",
+               values_to = "value")
+```
+# Visualize with histograms
+# Create interactive histograms using plotly
+```{R plot}
+p <- ggplot(data_tidy, aes(x = value)) +
+  geom_histogram() +
+  facet_wrap(~variable, scales = "free") +
+  labs(title = "Distribution of Variables",
+       x = "Value",
+       y = "Frequency") +
+  theme_minimal()
+ggplotly(p)
+```
+
+# Visualize with boxplots
+# Create interactive boxplots using plotly
+```{R boxplotl}
+p <- ggplot(data_tidy, aes(x = period, y = value, color = variable)) + 
+  geom_boxplot() +
+  labs(title = "Boxplot of Variables Over Time",
+       x = "Period",
+       y = "Value") +
+  theme_minimal() +
+  coord_flip()
+ggplotly(p)
+```
+
+# Join with spatial data
+```{R}
+kenya_sf <- st_read("County.shp")
+data$county <- gsub(" County$", "", data$county)
+data_sf <- left_join(kenya_sf, data, by = c("Name" = "county"))
+```
+# Map acute malnutrition
+# Create an interactive choropleth map using plotly
+```{R map}
+p <- ggplot(data_sf) +
+  geom_sf(aes(fill = Acute.Malnutrition)) +
+  labs(title = "Choropleth Map of Acute Malnutrition",
+       fill = "Acute Malnutrition") +
+  theme_void()
+ggplotly(p)
+```
+# Add maps showing spatial patterns over time
+```{R Spartial}
+data_sf %>% 
+  ggplot() +
+  geom_sf(aes(fill = Acute.Malnutrition)) +
+  facet_wrap(~ period)
+```
+# State research question 
+```{R Research Question}
+research_question <- "Is there a relationship between the number of children with acute malnutrition and the total number of children dewormed in different counties over time? Understanding this relationship can help in designing targeted interventions to address acute malnutrition in children."
+cat("Research Question:", research_question)
+```
+
+
+# Statistical analysis e.g. correlation, regression
+# Calculate correlation between Acute Malnutrition and Dewormed
+```{R correlation}
+correlation <- cor(data_sf$Acute.Malnutrition, data_sf$Total.Dewormed)
+print("Correlation coefficient between Acute Malnutrition and Dewormed:")
+print(correlation)
+```
+# Fit a linear regression model to explore the relationship between Acute Malnutrition and Dewormed
+```{R linear}
+linear_model <- lm(Acute.Malnutrition ~ Total.Dewormed, data = data_sf)
+summary(linear_model)
+```
+# Graphs showing the relationship between Acute Malnutrition and Dewormed
+# Create interactive scatter plot with a regression line using plotly
+```{R Graphs}
+p <- ggplot(data_sf, aes(x = Total.Dewormed, y = Acute.Malnutrition)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Scatter Plot of Acute Malnutrition vs. Dewormed",
+       x = "Dewormed",
+       y = "Acute Malnutrition") +
+  theme_minimal()
+ggplotly(p)
+```
+
+# Calculate summary statistics
+```{R statistics}
+summary_stats <- data %>%
+  group_by(county) %>%
+  summarise(
+    Avg_Dewormed = mean(Total.Dewormed),
+    Avg_Malnutrition = mean(Acute.Malnutrition)
+  )
+```
+# Create visualizations
+# Example: Scatter plot of average dewormed vs. average malnutrition
+```{R Scatter}
+ggplot(summary_stats, aes(x = Avg_Dewormed, y = Avg_Malnutrition)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Relationship between Dewormed Children and Acute Malnutrition",
+       x = "Average Children Dewormed",
+       y = "Average Acute Malnutrition") +
+  theme_minimal()
+```
+# Advanced Analysis: Time Series Analysis
+# Convert "Period" to date format
+```{R date}
+data$date <- as.Date(paste0("01-", data$period), format = "%d-%b-%y")
+```
+
+# Summarize the data at the monthly level to create time series
+```{R Time series}
+data_time_series <- data %>%
+  group_by(date) %>%
+  summarise(Avg_Dewormed = mean(Total.Dewormed),
+            Avg_Malnutrition = mean(Acute.Malnutrition))
+```
+
+# Plot the time series of "Total Dewormed" and "Acute Malnutrition"
+```{R plot time series}
+p_time_series <- ggplot(data_time_series, aes(x = date)) +
+  geom_line(aes(y = Avg_Dewormed, color = "Total Dewormed")) +
+  geom_line(aes(y = Avg_Malnutrition, color = "Acute Malnutrition")) +
+  labs(title = "Time Series of Total Dewormed and Acute Malnutrition",
+       x = "Date",
+       y = "Average Value") +
+  scale_color_manual(name = "Variables", values = c("Total Dewormed" = "blue", "Acute Malnutrition" = "red")) +
+  theme_minimal()
+ggplotly(p_time_series)
+```
+# Use ARIMA to decompose the time series into trend, seasonal, and residual components
+```{R}
+# Decompose the time series into trend, seasonal, and residual components using decompose() function
+data_time_series_decomposed <- decompose(ts(data_time_series$Avg_Dewormed, frequency = 12), type = "multiplicative")
+data_time_series_decomposed_malnutrition <- decompose(ts(data_time_series$Avg_Malnutrition, frequency = 12), type = "multiplicative")
+
+# Plot the decomposed components for Dewormed
+p_decomposed_dewormed <- autoplot(data_time_series_decomposed)
+p_decomposed_dewormed <- p_decomposed_dewormed + labs(title = "STL Decomposition of Dewormed Time Series",
+                                                    y = "Value")
+print(p_decomposed_dewormed)
+
+# Plot the decomposed components for Acute Malnutrition
+p_decomposed_malnutrition <- autoplot(data_time_series_decomposed_malnutrition)
+p_decomposed_malnutrition <- p_decomposed_malnutrition + labs(title = "STL Decomposition of Acute Malnutrition Time Series",
+                                                              y = "Value")
+print(p_decomposed_malnutrition)
+```
+#Fit ARIMA and SARIMA models for forecasting
+```{R ARIMA}
+# Fit ARIMA models for Dewormed and Acute Malnutrition time series
+model_dewormed_arima <- auto.arima(data_time_series$Avg_Dewormed)
+model_malnutrition_arima <- auto.arima(data_time_series$Avg_Malnutrition)
+
+# Forecast the next 6 months for Dewormed and Acute Malnutrition time series
+forecast_dewormed_arima <- forecast(model_dewormed_arima, h = 6)
+forecast_malnutrition_arima <- forecast(model_malnutrition_arima, h = 6)
+
+# Plot the forecasted values for Dewormed and Acute Malnutrition using ARIMA
+p_forecast_arima <- autoplot(forecast_dewormed_arima) +
+  autolayer(forecast_malnutrition_arima, series = "Forecasted Acute Malnutrition", PI = FALSE) +
+  labs(title = "ARIMA Forecast of Total Dewormed and Acute Malnutrition for the Next 6 Months",
+       y = "Value",
+       x = "Date") +
+  theme_minimal()
+print(p_forecast_arima)
+```
+# In conclusion, there appears to be a moderate positive correlation between the number of children dewormed and acute malnutrition cases.
+# The linear regression model also shows a significant relationship, though many other factors could be influencing acute malnutrition.
+# Time series analysis reveals the temporal patterns of Total Dewormed and Acute Malnutrition, and the STL decomposition can help identify trends and seasonality.

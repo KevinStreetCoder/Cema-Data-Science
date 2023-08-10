@@ -1,0 +1,6 @@
+"0","summary_stats <- data %>%"
+"0","  group_by(county) %>%"
+"0","  summarise("
+"0","    Avg_Dewormed = mean(Total.Dewormed),"
+"0","    Avg_Malnutrition = mean(Acute.Malnutrition)"
+"0","  )"

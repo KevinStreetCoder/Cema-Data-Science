@@ -1,0 +1,6 @@
+"0","library(xts)"
+"0","data_time_series <- xts(data$Avg_Dewormed, order.by = data$date)"
+"0","time_series_decomposed <- stl(data_time_series, s.window = ""periodic"")"
+"2","Error in ts(coredata(x), frequency = frequency(x), ...) : 
+  'ts' object must have one or more observations
+"
